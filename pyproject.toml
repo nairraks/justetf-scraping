@@ -43,6 +43,12 @@ dev = [
 [tool.ruff.lint]
 # see https://docs.astral.sh/ruff/rules/ for more
 extend-select = ["A", "ANN", "B", "D1", "I", "N"]
+# Ignore pre-existing undefined name in upstream code
+ignore = ["F821"]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests don't need docstrings, type annotations, or self annotations
+"tests/**" = ["ANN", "D1"]
 
 [tool.pytest]
 testpaths = ["tests"]
