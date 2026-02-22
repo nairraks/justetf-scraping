@@ -9,9 +9,15 @@ from typing import Literal, TypedDict
 
 # Global settings for all return data.
 Language = Literal["en", "de", "fr", "it", "es"]
-Country = Literal["DE", "AT", "CH", "GB", "IT", "FR", "ES", "NL", "BE"]
+Country = Literal[
+    "DE", "AT", "CH", "GB", "IT", "FR", "ES", "NL", "BE",
+    "US", "CA", "JP", "AU", "BR", "MX", "IN", "CN", "KR", "ID",
+]
 Universe = Literal["private", "institutional"]
-Currency = Literal["EUR", "USD", "CHF", "GBP"]
+Currency = Literal[
+    "EUR", "USD", "CHF", "GBP",
+    "AUD", "CAD", "JPY", "BRL", "MXN", "INR", "CNY", "KRW", "IDR",
+]
 
 # Some settings for filtering data.
 Strategy = Literal["epg-longOnly", "epg-activeEtfs", "epg-shortAndLeveraged"]

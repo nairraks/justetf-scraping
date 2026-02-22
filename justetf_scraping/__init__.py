@@ -1,11 +1,15 @@
 """
 Scrape the [justETF](https://www.justetf.com).
 """
+import logging
 
 from .charts import compare_charts, load_chart
 from .etf_profile import get_etf_overview
 from .live_quote import iterate_live_quote, load_live_quote
 from .overview import load_overview
+
+logger = logging.getLogger(__name__)
+logger.debug("justETF scraping module loaded.")
 
 __all__ = [
     "load_chart",

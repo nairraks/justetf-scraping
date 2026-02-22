@@ -3,6 +3,7 @@ Scrape ETF overview data from justETF (https://www.justetf.com/en/find-etf.html)
 """
 
 import itertools
+import logging
 import re
 import warnings
 from typing import Any, Literal, cast
@@ -32,6 +33,8 @@ from .types import (
     Strategy,
     Universe,
 )
+
+logger = logging.getLogger(__name__)
 
 BASE_URL = "https://www.justetf.com/en/search.html"
 BASE_DATA = {"draw": 1, "start": 0, "length": -1}
@@ -142,6 +145,7 @@ def make_etf_params(
     index_provider: str | None = None,
     index: str | None = None,
     isin: str | None = None,
+    instrument_currency: Currency | None = None,
 ) -> str:
     """
     Make `etfParams` for ETF data request for `BASE_PARAMS` enrichment.
@@ -167,7 +171,9 @@ def make_etf_params(
         index: Optional index query. Can be spotted in `qroupIndex` field in any
             response.
         isin: Optional ISIN query.
+        instrument_currency: Currency the instrument is based on E.g. JPY bonds, see `Currency`.
     """
+    logger.debug("building etf_params")
     etf_params = f"search=ETF&productGroup={strategy}"
     if exchange is not None:
         etf_params += f"&ls={exchange}"
@@ -203,6 +209,9 @@ def make_etf_params(
         etf_params += f"&index={index}"
     if isin is not None:
         etf_params += f"&query={isin}"
+    if instrument_currency is not None:
+        logger.debug("adding currency to search: %s", instrument_currency)
+        etf_params += f"&currency={instrument_currency}"
     return etf_params
 
 
@@ -217,6 +226,7 @@ def load_raw_overview(
     index_provider: str | None = None,
     index: str | None = None,
     isin: str | None = None,
+    instrument_currency: Currency | None = None,
     language: Language = "en",
     local_country: Country = "DE",
     universe: Universe = "private",
@@ -245,11 +255,13 @@ def load_raw_overview(
         index: Optional index query. Can be spotted in `qroupIndex` field in any
             response.
         isin: Optional ISIN query.
+        instrument_currency: Currency the instrument is based on E.g. JPY bonds, see `Currency`.
         language: Optional response language, see `Language`.
         local_country: Optional response country, see `Country`.
         universe: Optional investor type, see `Universe`.
         currency: Currency to get data in, see `Currency`.
     """
+    logger.debug("getting raw overview")
     # If `strategy` is `None`, make requests for all strategies.
     strategies: list[Strategy] = list(STRATEGIES) if strategy is None else [strategy]
     rows: list[dict[str, Any]] = []
@@ -284,6 +296,7 @@ def load_raw_overview(
                         index_provider,
                         index,
                         isin,
+                        instrument_currency,
                     ),
                 },
             )
@@ -313,6 +326,7 @@ def load_overview(
     index_provider: str | None = None,
     index: str | None = None,
     isin: str | None = None,
+    instrument_currency: Currency | None = None,
     language: Language = "en",
     local_country: Country = "DE",
     universe: Universe = "private",
@@ -343,6 +357,7 @@ def load_overview(
         index: Optional index query. Can be spotted in `qroupIndex` field in any
             response.
         isin: Optional ISIN query.
+        instrument_currency: Currency the instrument is based on E.g. JPY bonds, see `Currency` for available options.
         language: Optional language for the response data, see `Language` for
             available options.
         local_country: Optional response country, see `Country` for available
@@ -356,6 +371,7 @@ def load_overview(
                 `region`: target region
                 `exchange`: all exchanges the asset is available at.
     """
+    logger.debug("loading overview")
     rows = load_raw_overview(
         strategy,
         exchange,
@@ -367,6 +383,7 @@ def load_overview(
         index_provider,
         index,
         isin,
+        instrument_currency,
         language,
         local_country,
         universe,
